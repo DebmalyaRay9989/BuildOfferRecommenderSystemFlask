@@ -14,7 +14,7 @@ pandas
 pickleshare==0.7.5
 requests==2.24.0
 scikit-learn==1.6.0
-scipy
+scipy==1.14.1
 sklearn
 threadpoolctl==2.1.0
 urllib3==1.25.9

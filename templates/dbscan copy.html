@@ -1,0 +1,248 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBSCAN Clustering</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.12.1/plotly.min.js"></script>
+
+    <!-- Custom styling for improved UI -->
+    <style>
+       
+       body {
+            font-family: 'Roboto', sans-serif;
+            background: 
+                linear-gradient(135deg, rgba(210, 180, 140, 0.5), rgba(245, 222, 179, 0.5)), /* Softer gradient */
+                url('{{ url_for('static', filename='images/wallpaper_telecom.jpg') }}');
+            background-size: cover;  /* Make the background cover the whole screen */
+            background-position: center;  /* Center the background */
+            color: #333;
+            padding-top: 40px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 960px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .mb-4 {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-size: 1.1rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 8px rgba(0, 86, 179, 0.4);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 8px;
+            padding: 14px 22px;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* Hover effects for form elements */
+        .form-control:hover, .form-select:hover {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Error message */
+        .alert-danger {
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            margin-top: 20px;
+        }
+
+        .list-group-item {
+            font-size: 1rem;
+            padding: 12px;
+        }
+
+        /* Loading Spinner */
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 4px;
+            color: #007bff;
+        }
+
+        /* Spinner Overlay */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .form-control, .form-select {
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+
+            .btn-primary {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            .list-group-item {
+                font-size: 1rem;
+                padding: 10px;
+            }
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">DBSCAN Clustering of Telecom Customers</h1>
+        <hr>
+
+        <!-- Error message section -->
+        {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ error_message }}
+            </div>
+        {% endif %}
+
+        <!-- DBSCAN Clustering Form -->
+        <form method="POST">
+            <div class="row mb-3">
+                <label for="features" class="col-sm-2 col-form-label">Select Features for Clustering:</label>
+                <div class="col-sm-10">
+                    <select id="features" name="features" class="form-control" multiple>
+                        {% for feature in features %}
+                            <option value="{{ feature }}" {% if feature in selected_features %} selected {% endif %}>{{ feature }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="eps" class="col-sm-2 col-form-label">Epsilon (eps):</label>
+                <div class="col-sm-10">
+                    <input type="number" step="0.01" name="eps" id="eps" class="form-control" value="{{ eps }}">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="min_samples" class="col-sm-2 col-form-label">Min Samples:</label>
+                <div class="col-sm-10">
+                    <input type="number" name="min_samples" id="min_samples" class="form-control" value="{{ min_samples }}">
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Perform DBSCAN Clustering</button>
+            </div>
+        </form>
+
+        <!-- Display Results -->
+        {% if fig_json %}
+            <h3 class="mt-5">Clustering Visualization:</h3>
+            <div id="cluster-plot" class="mt-4">
+                <div id="dbscan-plot"></div>
+                <script>
+                    var clusterData = {{ fig_json | safe }};
+                    Plotly.newPlot('dbscan-plot', clusterData.data, clusterData.layout);
+                </script>
+            </div>
+        {% endif %}
+
+        {% if df %}
+            <h3 class="mt-5">Top 10 Clustering Results:</h3>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Customer ID</th>
+                            <th scope="col">Offer</th>
+                            <th scope="col">Churn Value</th>
+                            <th scope="col">Cluster</th>
+                            <th scope="col">Total Recharge Amount</th>
+                            <th scope="col">Total Recharge Data</th>
+                            <th scope="col">Vol 4G</th>
+                            <th scope="col">Vol 5G</th>
+                            <th scope="col">ARPU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in df %}
+                            <tr>
+                                <td>{{ row['Customer ID'] }}</td>
+                                <td>{{ row['offer'] }}</td>
+                                <td>{{ row['Churn Value'] }}</td>
+                                <td>{{ row['Cluster'] }}</td>
+                                <td>{{ row['total_rech_amt'] }}</td>
+                                <td>{{ row['total_rech_data'] }}</td>
+                                <td>{{ row['vol_4g'] }}</td>
+                                <td>{{ row['vol_5g'] }}</td>
+                                <td>{{ row['arpu'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <!-- Go to Home Button -->
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-primary go-home-btn" aria-label="Go back to the home page">Go to Home</a>
+        </div>
+
+    </div>
+
+    <br>
+    <br>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+

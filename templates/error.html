@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Telecom Offer Recommender</title>
+    
+    <!-- Linking to Google Fonts and FontAwesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS for modern UI elements -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+    <!-- Custom styling for improved UI -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            padding-top: 40px;
+        }
+
+        .container {
+            max-width: 960px;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007bff;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h3 {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .alert-danger {
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 8px;
+            padding: 14px 22px;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .btn-primary {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Something Went Wrong!</h1>
+
+        <!-- Error Message Display -->
+        {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+                <i class="fa fa-exclamation-triangle"></i> <!-- Error Icon -->
+                {{ error_message }}
+            </div>
+        {% endif %}
+
+        <!-- Back to Home button -->
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fa fa-home"></i> Go Back to Home
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
+
+
